@@ -1,0 +1,24 @@
+{
+	"name": "hackers-wanted-api",
+	"version": "1.0.0",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "nodemon ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yunahu/hackers-wanted-api.git"
+	},
+	"author": "Yuna Hu, Yujie Peng, Shushama Tahsin, Piero Friedrich",
+	"bugs": {
+		"url": "https://github.com/yunahu/hackers-wanted-api/issues"
+	},
+	"homepage": "https://github.com/yunahu/hackers-wanted-api#readme",
+	"description": "",
+	"dependencies": {
+		"dotenv": "^16.4.5",
+		"express": "^4.21.0"
+	}
+}
