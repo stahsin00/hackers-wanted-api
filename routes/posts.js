@@ -23,19 +23,15 @@ router.post("/", isAuthenticated, async (req, res) => {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
-
-  console.log(req.body);
 });
 
 router.get('/', async (req, res) => {
   const LIMIT = 5; // TODO: centralize configs
 
   const offset = parseInt(req.query.offset, 10) || 0;
-  const search = req.query.search || "";
   const tags = req.query.tags ? req.query.tags.split(",") : [];
 
   try {
-    // TODO: other ways to search?
     let query = `
             SELECT posts.*, users.name AS user_name, users.email AS user_email
             FROM posts
@@ -43,15 +39,10 @@ router.get('/', async (req, res) => {
         `;
     let queryParams = [];
 
-    if (search) {
-      query += ' WHERE (posts.title LIKE ? OR posts.description LIKE ?)';
-      const searchPattern = `%${search}%`;
-      queryParams.push(searchPattern, searchPattern);
-    }
-
-    if (tags.length > 0) {
-        query += search ? ' AND ' : ' WHERE ';
-        query += `posts.tags IN (${tags.map(() => '?').join(', ')})`;
+    if (tags.length > 0) {  // TODO: tags table?
+        query += ' WHERE (';
+        query += tags.map(() => 'FIND_IN_SET(?, posts.tags)').join(' OR ');
+        query += ')';
         queryParams.push(...tags);
     }
 
@@ -66,6 +57,39 @@ router.get('/', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+router.get('/search', async (req, res) => { // TODO: other ways to search?
+    const LIMIT = 5; // TODO: centralize configs
+  
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const search = req.query.search || "";
+  
+    try {
+      // TODO: other ways to search?
+      let query = `
+              SELECT posts.*, users.name AS user_name, users.email AS user_email
+              FROM posts
+              JOIN users ON posts.user_id = users.id
+          `;
+      let queryParams = [];
+  
+      if (search) {
+        query += ' WHERE (posts.title LIKE ? OR posts.description LIKE ?)';
+        const searchPattern = `%${search}%`;
+        queryParams.push(searchPattern, searchPattern);
+      }
+  
+      query += ' LIMIT ? OFFSET ?';
+      queryParams.push(LIMIT, offset);
+  
+      const posts = await db.query(query, queryParams);
+  
+      res.status(200).send({ posts });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
 router.get('/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
