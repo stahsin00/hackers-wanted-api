@@ -12,7 +12,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: '/auth/google/callback',
+      callbackURL: `${process.env.BACKEND_URI}/auth/google/callback`,
     },
     function verify(issuer, profile, cb) {
       const run = async () => {
@@ -100,6 +100,7 @@ router.get(
 
 router.get('/logout', isAuthenticated, (req, res) => {
   // TODO
+  req.logout();
   res.status(200).send('Signed out.');
 });
 
