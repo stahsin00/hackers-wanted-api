@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     tags VARCHAR(255),
-    status TINYINT(1) DEFAULT 0,
+    status TINYINT(1) DEFAULT 1,
     user_id INT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
