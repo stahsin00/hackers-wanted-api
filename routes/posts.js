@@ -30,6 +30,7 @@ router.get('/', async (req, res) => {
 
   const offset = parseInt(req.query.offset, 10) || 0;
   const search = req.query.search || '';
+  console.log(req.query.tags);
   const tags = req.query.tags ? req.query.tags.split(',') : [];
 
   try {
@@ -48,8 +49,9 @@ router.get('/', async (req, res) => {
     }
 
     if (tags.length > 0) {
-      query += search ? ' AND posts.tags IN (?)' : ' WHERE posts.tags IN (?)';
-      queryParams.push(tags);
+        query += search ? ' AND ' : ' WHERE ';
+        query += `posts.tags IN (${tags.map(() => '?').join(', ')})`;
+        queryParams.push(...tags);
     }
 
     query += ' LIMIT ? OFFSET ?';
@@ -73,7 +75,7 @@ router.get('/:id', async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT posts.*, users.name AS user_name, users.email AS user_email
+      `SELECT posts.*, users.name AS user_name, users.email AS user_email, users.profile_picture AS user_picture
              FROM posts 
              JOIN users ON posts.user_id = users.id 
              WHERE posts.id = ?`,
