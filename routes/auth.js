@@ -100,8 +100,14 @@ router.get(
 
 router.get('/logout', isAuthenticated, (req, res) => {
   // TODO
-  req.logout();
-  res.status(200).send('Signed out.');
+  req.logout(function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    res.status(200).send('Logged out');
+  });
 });
 
 router.get('/user', isAuthenticated, async (req, res) => {
