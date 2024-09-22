@@ -12,7 +12,6 @@ const isAuthenticated = (req, res, next) => {
 };
 
 router.post('/', isAuthenticated, async (req, res) => {
-    // TODO: handle tags
     const { title, description, tags } = req.body;
 
     if (!title || !description || !tags) {
@@ -33,8 +32,43 @@ router.post('/', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/', (req, res) => {
-    // TODO
+router.get('/', async (req, res) => {
+    const LIMIT = 10; // TODO: centralize configs
+
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const search = req.query.search || '';
+    const tags = req.query.tags ? req.query.tags.split(',') : [];
+
+    try {  // TODO: other ways to search?
+        let query = `
+            SELECT posts.*, users.name, users.email
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+        `;
+        let queryParams = [];
+
+        if (search) {
+            query += " WHERE (posts.title LIKE ? OR posts.description LIKE ?)";
+            const searchPattern = `%${search}%`;
+            queryParams.push(searchPattern, searchPattern);
+        }
+
+        if (tags.length > 0) {
+            query += search ? " AND posts.tags IN (?)" : " WHERE posts.tags IN (?)";
+            queryParams.push(tags);
+        }
+
+        query += " LIMIT ? OFFSET ?";
+        queryParams.push(LIMIT, offset);
+
+        const posts = await db.query(query, queryParams);
+
+        res.status(200).send({ posts });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+    }
 });
 
 router.get("/:id", async (req, res) => {
@@ -68,7 +102,6 @@ router.get("/:id", async (req, res) => {
 });
 
 router.patch("/:id", isAuthenticated, async (req, res) => {
-    // TODO: handle tags
     const id = parseInt(req.params.id, 10);
     const { title, description, tags, status } = req.body;
 
