@@ -4,6 +4,7 @@ import session from 'express-session';
 import passport from 'passport';
 import cors from 'cors';
 import authRouter from './routes/auth.js';
+import postRouter from './routes/posts.js'
 import { connectToMySQL } from './services/mysql.js';
 
 const port = process.env.PORT || 1234;
@@ -34,6 +35,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRouter);
+app.use('/posts', postRouter);
 
 await connectToMySQL();
 

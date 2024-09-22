@@ -26,7 +26,7 @@ router.post('/', isAuthenticated, async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const LIMIT = 10; // TODO: centralize configs
+  const LIMIT = 5; // TODO: centralize configs
 
   const offset = parseInt(req.query.offset, 10) || 0;
   const search = req.query.search || '';
@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
   try {
     // TODO: other ways to search?
     let query = `
-            SELECT posts.*, users.name, users.email
+            SELECT posts.*, users.name AS user_name, users.email AS user_email
             FROM posts
             JOIN users ON posts.user_id = users.id
         `;
@@ -73,7 +73,7 @@ router.get('/:id', async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT posts.*, users.name, users.email
+      `SELECT posts.*, users.name AS user_name, users.email AS user_email
              FROM posts 
              JOIN users ON posts.user_id = users.id 
              WHERE posts.id = ?`,
