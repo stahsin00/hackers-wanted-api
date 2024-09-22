@@ -36,6 +36,7 @@ router.get('/', async (req, res) => {
             SELECT posts.*, users.name AS user_name, users.email AS user_email
             FROM posts
             JOIN users ON posts.user_id = users.id
+						ORDER BY posts.id DESC
         `;
     let queryParams = [];
 
