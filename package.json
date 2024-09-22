@@ -25,5 +25,8 @@
 		"mysql": "^2.18.1",
 		"passport": "^0.7.0",
 		"passport-google-oidc": "^0.1.0"
+	},
+	"devDependencies": {
+		"prettier": "^3.3.3"
 	}
 }

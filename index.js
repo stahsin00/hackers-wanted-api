@@ -1,36 +1,39 @@
-import "dotenv/config.js";
-import express from "express";
-import session from "express-session";
-import passport from "passport";
-import cors from "cors";
-import authRouter from "./routes/auth.js";
-import { connectToMySQL } from "./services/mysql.js";
+import 'dotenv/config.js';
+import express from 'express';
+import session from 'express-session';
+import passport from 'passport';
+import cors from 'cors';
+import authRouter from './routes/auth.js';
+import { connectToMySQL } from './services/mysql.js';
 
 const port = process.env.PORT || 1234;
 const app = express();
 
 // TODO: use a logger
 
-app.use(cors({
+app.use(
+  cors({
     credentials: true,
-    origin: process.env.FRONTEND_URI
+    origin: process.env.FRONTEND_URI,
   })
 );
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  // TODO use redis as store
-  cookie: { 
-    secure: false
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    // TODO use redis as store
+    cookie: {
+      secure: false,
+    },
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/auth", authRouter);
+app.use('/auth', authRouter);
 
 await connectToMySQL();
 
