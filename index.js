@@ -1,11 +1,11 @@
-import 'dotenv/config.js';
-import express from 'express';
-import session from 'express-session';
-import passport from 'passport';
-import cors from 'cors';
-import authRouter from './routes/auth.js';
-import postRouter from './routes/posts.js'
-import { connectToMySQL } from './services/mysql.js';
+import "dotenv/config.js";
+import express from "express";
+import session from "express-session";
+import passport from "passport";
+import cors from "cors";
+import authRouter from "./routes/auth.js";
+import postsRouter from "./routes/posts.js";
+import { connectToMySQL } from "./services/mysql.js";
 
 const port = process.env.PORT || 1234;
 const app = express();
@@ -18,6 +18,9 @@ app.use(
     origin: process.env.FRONTEND_URI,
   })
 );
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
@@ -34,8 +37,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/auth', authRouter);
-app.use('/posts', postRouter);
+app.use("/auth", authRouter);
+app.use("/posts", postsRouter);
 
 await connectToMySQL();
 
