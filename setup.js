@@ -22,21 +22,26 @@ const setup = async () => {
   await connectToMySQL();
 
   try {
+
     for (const query of queries) {
       await db.query(query);
     }
 
     console.log("Database setup completed");
+
   } catch (err) {
+
     console.error("Database setup failed:", err);
+
   } finally {
-    db.end((err) => {
-      if (err) {
-        console.error("Error closing the database connection:", err);
-      } else {
-        console.log("Database connection closed");
-      }
-    });
+
+    try {
+      await db.end();
+      console.log("Database connection closed");
+    } catch (err) {
+      console.error("Error closing the database connection:", err);
+    }
+
   }
 };
 
