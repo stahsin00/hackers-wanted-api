@@ -3,6 +3,7 @@ import express from "express";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oidc";
 import { db } from "../services/mysql.js";
+import { isAuthenticated } from "../middleware/isAuthenticated.js";
 
 const router = express.Router();
 
@@ -67,10 +68,10 @@ passport.deserializeUser(async (id, next) => {
     try {
       const [user] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
   
-      if (user.length > 0) {
-        next(null, user[0]);
-      } else {
+      if (!user) {
         next(new Error("User not found"));
+      } else {
+        next(null, user);
       }
     } catch (err) {
       next(err);
@@ -86,8 +87,28 @@ router.get('/google/callback',
             passport.authenticate('google', { failureRedirect: '/',  // TODO
                                               successReturnToOrRedirect: `${process.env.FRONTEND_URI}`, }));
 
-router.get('/logout', (req, res) => {
+router.get('/logout', isAuthenticated, (req, res) => {
     // TODO
+    res.status(200).send("Signed out.");
+});
+
+router.get("/user", isAuthenticated, async (req, res) => {
+    try {
+        const [user] = await db.query(
+            `SELECT * FROM users WHERE id = ?`, 
+            [req.user.id]
+        );
+
+        if (!user) {
+            return res.status(404).send("User not found.");
+        }
+
+        res.status(200).json({ user });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+    }
 });
   
 

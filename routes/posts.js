@@ -1,15 +1,9 @@
 import "dotenv/config.js";
 import express from "express";
 import { db } from "../services/mysql.js";
+import { isAuthenticated } from "../middleware/isAuthenticated.js";
 
 const router = express.Router();
-
-const isAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    return res.status(401).json({ message: 'Unauthorized.' });
-};
 
 router.post('/', isAuthenticated, async (req, res) => {
     const { title, description, tags } = req.body;
