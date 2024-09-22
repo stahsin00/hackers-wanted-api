@@ -1,13 +1,13 @@
-import "dotenv/config.js";
-import express from "express";
-import session from "express-session";
-import passport from "passport";
-import cors from "cors";
-import authRouter from "./routes/auth.js";
-import postsRouter from "./routes/posts.js";
-import { connectToMySQL } from "./services/mysql.js";
+import 'dotenv/config.js';
+import express from 'express';
+import session from 'express-session';
+import passport from 'passport';
+import cors from 'cors';
+import authRouter from './routes/auth.js';
+import postsRouter from './routes/posts.js';
+import { connectToMySQL } from './services/mysql.js';
 
-const port = process.env.PORT || 1234;
+const port = process.env.PORT || 3000;
 const app = express();
 
 // TODO: use a logger
@@ -37,8 +37,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/auth", authRouter);
-app.use("/posts", postsRouter);
+app.use('/auth', authRouter);
+app.use('/posts', postsRouter);
 
 await connectToMySQL();
 

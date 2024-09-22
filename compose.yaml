@@ -1,0 +1,23 @@
+services:
+  service1:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - mode: ingress
+        target: 3000
+        published: 3000
+    environment:
+      - PORT = ${PORT}
+      - GOOGLE_CLIENT_ID = ${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET = ${GOOGLE_CLIENT_SECRET}
+      - FRONTEND_URI = ${FRONTEND_URI} 
+      - SESSION_SECRET = ${SESSION_SECRET}
+      - DB_HOST = ${DB_HOST}
+      - DB_USER = ${DB_USER}
+      - DB_PASS = ${DB_PASS}
+      - DB_NAME = ${DB_NAME}
+    env_file:
+      - .env
+
