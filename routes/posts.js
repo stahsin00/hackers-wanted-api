@@ -5,9 +5,7 @@ import { isAuthenticated } from '../middleware/isAuthenticated.js';
 
 const router = express.Router();
 
-// TODO: isAuthenticated
-// TODO: 6 -> req.user.id
-router.post("/", async (req, res) => {
+router.post("/", isAuthenticated, async (req, res) => {
   const { title, description, tags, category } = req.body;
 
   if (!title || !description || !category) {
@@ -17,7 +15,7 @@ router.post("/", async (req, res) => {
   try {
     const post = await db.query(
       "INSERT INTO posts (user_id, title, description, tags, status) VALUES (?, ?, ?, ?, ?)",
-      [6, title, description, tags, 1]
+      [req.user.id, title, description, tags, 1]
     );
 
     res.status(201).send({ post });
@@ -52,8 +50,9 @@ router.get('/', async (req, res) => {
     }
 
     if (tags.length > 0) {
-      query += search ? ' AND posts.tags IN (?)' : ' WHERE posts.tags IN (?)';
-      queryParams.push(tags);
+        query += search ? ' AND ' : ' WHERE ';
+        query += `posts.tags IN (${tags.map(() => '?').join(', ')})`;
+        queryParams.push(...tags);
     }
 
     query += ' LIMIT ? OFFSET ?';
@@ -77,7 +76,7 @@ router.get('/:id', async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT posts.*, users.name AS user_name, users.email AS user_email
+      `SELECT posts.*, users.name AS user_name, users.email AS user_email, users.profile_picture AS user_picture
              FROM posts 
              JOIN users ON posts.user_id = users.id 
              WHERE posts.id = ?`,
@@ -97,9 +96,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// TODO: isAuthenticated
-// TODO: 6 -> req.user.id
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", isAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { title, description, tags, category, status } = req.body;
 
@@ -120,16 +117,15 @@ router.patch("/:id", async (req, res) => {
 
     const post = result[0];
 
-    // TODO:
-    // if (post.user_id !== req.user.id) {
-    //   return res.status(403).send("Unauthorized.");
-    // }
+    if (post.user_id !== req.user.id) {
+      return res.status(403).send("Unauthorized.");
+    }
 
     await db.query(
       `UPDATE posts 
              SET title = ?, description = ?, tags = ?, status = ? 
              WHERE id = ? AND user_id = ?`,
-      [title, description, tags, status || post.status, id, 6]
+      [title, description, tags, status ?? post.status, id, req.user.id]
     );
 
     res.status(200).send("Post updated.");
@@ -139,9 +135,7 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
-// TODO: isAuthenticated
-// TODO: 6 -> req.user.id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", isAuthenticated, async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
   if (isNaN(id)) {
@@ -151,7 +145,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const result = await db.query(
       "DELETE FROM posts WHERE id = ? AND user_id = ?",
-      [id, 6]
+      [id, req.user.id]
     );
 
     if (result.affectedRows === 0) {
